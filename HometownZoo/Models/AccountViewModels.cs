@@ -65,6 +65,8 @@ namespace HometownZoo.Models
     public class RegisterViewModel
     {
         [Required]
+        public string UserName { get; set; }
+        [Required]
         [EmailAddress]
         [Display(Name = "Email")]
         public string Email { get; set; }
