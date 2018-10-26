@@ -31,7 +31,67 @@ namespace HometownZoo.Models.Tests
             // Set up Mock database and mock animal table
 
             // create a Mock of Animals
+            Mock<ApplicationDbContext> mockDb = GetMockDbWithAnimals();
+
+            //ACT
+            IEnumerable<Animal> allAnimals =
+                AnimalService.GetAnimals(mockDb.Object);
+
+            // ASSERT all animals are returned
+            Assert.AreEqual(2, allAnimals.Count());
+
+            // Assert animals are sorted by name (ascending)
+            Assert.AreEqual("Bat", allAnimals.ElementAt(0).Name);
+            Assert.AreEqual("Zebra", allAnimals.ElementAt(1).Name);
+        }
+
+        private Mock<ApplicationDbContext> GetMockDbWithAnimals()
+        {
+            Mock<DbSet<Animal>> mockAnimals = GetMockAnimalsDbSet();
+            var mockDb = GetMockDB(mockAnimals);
+            return mockDb;
+        }
+
+        [TestMethod]
+        public void AddAnimal_NewAnimalShouldCallAllAndSaveChanges()
+        {
+            //ARRANGE
+            Mock<DbSet<Animal>> mockAnimals = GetMockAnimalsDbSet();
+            Mock<ApplicationDbContext> mockDb = GetMockDB(mockAnimals);
+
+            Animal a = new Animal() { Name = "Elephant" };
+
+            //ACT
+            AnimalService.AddAnimal(a, mockDb.Object);
+
+            //ASSERT
+            mockAnimals.Verify(m => m.Add(a), Times.Once);
+            mockDb.Verify(m => m.SaveChanges(), Times.Once);
+        }
+
+        private static Mock<ApplicationDbContext> GetMockDB(Mock<DbSet<Animal>> mockAnimals)
+        {
+            var mockDb = new Mock<ApplicationDbContext>();
+            mockDb.Setup(db => db.Animals)
+                .Returns(mockAnimals.Object);
+            return mockDb;
+        }
+
+        [TestMethod]
+        public void AddAnimal_NullAnimal_ShouldThrowNullArgumentException()
+        {
+            Animal a = null;
+
+            var mockDb = GetMockDbWithAnimals();
+            //ASSERT => ACT
+            Assert.ThrowsException<ArgumentNullException>
+                (() => AnimalService.AddAnimal(a, mockDb.Object));
+        }
+
+        private Mock<DbSet<Animal>> GetMockAnimalsDbSet()
+        {
             var mockAnimals = new Mock<DbSet<Animal>>();
+
             mockAnimals.As<IQueryable<Animal>>()
                 .Setup(m => m.Provider)
                 .Returns(animals.Provider);
@@ -43,18 +103,7 @@ namespace HometownZoo.Models.Tests
             mockAnimals.As<IQueryable<Animal>>()
                 .Setup(m => m.GetEnumerator())
                 .Returns(animals.GetEnumerator());
-
-            // Create mock database
-            var mockDb = new Mock<ApplicationDbContext>();
-            mockDb.Setup(db => db.Animals)
-                .Returns(mockAnimals.Object);
-
-            //ACT
-            IEnumerable<Animal> allAnimals = 
-                AnimalService.GetAnimals(mockDb.Object);
-
-            // ASSERT
-            Assert.AreEqual(2, allAnimals.Count());
+            return mockAnimals;
         }
     }
 }

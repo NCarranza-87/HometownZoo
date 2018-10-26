@@ -29,7 +29,8 @@ namespace HometownZoo.Models
         {
             return new ApplicationDbContext();
         }
-
-        public System.Data.Entity.DbSet<HometownZoo.Models.Animal> Animals { get; set; }
+        
+        
+        public virtual DbSet<Animal> Animals { get; set; }
     }
 }

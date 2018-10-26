@@ -11,8 +11,7 @@ namespace HometownZoo.Models
     /// </summary>
     public static class AnimalService
     {
-        public static IEnumerable<Animal> 
-            GetAnimals(ApplicationDbContext db)
+        public static IEnumerable<Animal> GetAnimals(ApplicationDbContext db)
         {
             //query syntax
             return (from a in db.Animals
@@ -23,6 +22,19 @@ namespace HometownZoo.Models
             //return db.Animals
             //        .OrderBy(a => a.Name)
             //        .ToList();
+        }
+
+        public static void AddAnimal(Animal a, ApplicationDbContext db)
+        {
+            if (a is null)
+            {
+                throw new ArgumentNullException($"Parameter {nameof(a)} cannot be null!");
+            }
+
+            //TODO: Ensure duplicate name are disallowed
+
+            db.Animals.Add(a);
+            db.SaveChanges();
         }
     }
 }
