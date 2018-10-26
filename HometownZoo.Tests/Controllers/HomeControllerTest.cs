@@ -13,7 +13,7 @@ namespace HometownZoo.Tests.Controllers
     public class HomeControllerTest
     {
         [TestMethod]
-        public void Index()
+        public void Index_ReturnsNonNullResult()
         {
             // Arrange
             HomeController controller = new HomeController();
@@ -26,29 +26,28 @@ namespace HometownZoo.Tests.Controllers
         }
 
         [TestMethod]
-        public void About()
+        public void About_ReturnsNonNullViewResult()
         {
             // Arrange
-            HomeController controller = new HomeController();
+            HomeController home = new HomeController();
 
             // Act
-            ViewResult result = controller.About() as ViewResult;
-
-            // Assert
-            Assert.AreEqual("Your application description page.", result.ViewBag.Message);
-        }
-
-        [TestMethod]
-        public void Contact()
-        {
-            // Arrange
-            HomeController controller = new HomeController();
-
-            // Act
-            ViewResult result = controller.Contact() as ViewResult;
+            ViewResult result = home.About() as ViewResult;
 
             // Assert
             Assert.IsNotNull(result);
+        }
+
+        public void About_ShouldHaveViewBagMessage()
+        {
+            HomeController home = new HomeController();
+
+            ViewResult result = home.About() as ViewResult;
+
+            string message = result.ViewBag.Message;
+
+            Assert.IsNotNull(message);
+            Assert.AreNotEqual(string.Empty, message.Trim());
         }
     }
 }
